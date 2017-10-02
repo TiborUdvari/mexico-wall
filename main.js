@@ -127,11 +127,6 @@ function layout() {
         }
 }
 
-function getRow(n){
-    // Get the rows
-    // n
-}
-
 function getColIdxs(n){
     return _.range(allRows).map( (i) => n + i * allCols );
 }
@@ -147,7 +142,6 @@ function getVisibleRowIdxs(n){
 function getVisibleColIdxs(n){
     return _.range(allRows).map( (i) => n + i * allCols + xOff );    
 }
- 
 
 function getModulesFromIndexes(idxs, layers){
     let deepArray = _.map(layers, (layer) => _.map(idxs, (idx) => groups[layer][idx] ) )
@@ -164,18 +158,8 @@ function getVisibleColModules(n, layers) { // layers is an array
 
 function getColModules(n, layer){
     let colIdxs = getVisibleColIdxs(n, 0);
-    // get all the ones in a layer
-    // 0 bottom layer, 1 top layer
     return getColIdxs(n + xOff).map((idx) => groups[layer][idx]);
 }
-
-// Animation type
-// slice: COL, ROW
-// direction: LEFT, RIGHT, UP, DOWN
-// size: how many modules are displaced
-// type: full, partial
-
-// todo - move both modules and update the datas
 
 function getNewColor(){
     // find the colors
@@ -184,23 +168,78 @@ function getNewColor(){
     return _.difference(allColors, currentColors)[0];
 }
 
+
+var clickCount = 0;
+var lastClickTime = Date.now();
+
+function randomInteract(pct){
+    var rowVsCol = Math.random() < probabilityRowAnimation;
+
+    var slideCount = Math.floor(pct * maxOneClickSlides);
+    console.log("pct is " + pct);
+    console.log("slidecount it " + slideCount);
+    slideCount = Math.max(slideCount, 1);
+    console.log()
+    for (var i = 0; i < slideCount; i++) {
+        var tries = 0;
+        do {
+            var goodSlide = slideColRandomParams();            
+            tries++;
+        } while (!goodSlide && findSlideCountMax > tries);
+    }
+} 
+
+function handleClick() {
+    clickCount++;
+
+    let clickDelta = Date.now() - lastClickTime ;
+
+    console.log("click delta " + clickDelta );
+
+    if (clickCount >= changeColorClickCount) {
+        let newColor = getNewColor();
+        
+        slideInNewColor(newColor);
+        clickCount = 0;
+    } else {
+        var pct = clickDelta / maxTimerInteraction;
+        pct = Math.min(1, pct);
+        randomInteract(pct)
+    }
+
+    lastClickTime = Date.now();
+}
+
+function interactWhenNotTouching(){
+    if (Date.now() > lastClickTime + idleTimeBeforeInteraction){
+        // todo random animation thing
+    }
+}
+
+setInterval(interactWhenNotTouching, idleTimeBeforeInteraction);
+
 document.onclick = function(){
+    handleClick();
+}
 
-    let newColor = getNewColor();
-    slideRow( [0, 1], -cols, [0, 1]);
-
-    // Get last click time
-    // Get the last 
-
-
-    //slideColRandom();
-    //slideInNewColor(newColor);
+function slideColRandomParams(){
+    var c, delta, layerChoices, arrLayers;
     
-    //slideCol(1, 2, [0, 1]);
-   // slideColRandom();
-   //slideRowRandom();
-    //slideRow(0, 5, [1]);
-    // bug losing one module
+    var locked = true;    
+    c = _.random(0, cols - 1);
+    delta = _.sample([-2, -1, 1, 2]);
+    layerChoices = [[0], [1]];
+    arrLayers = _.sample(layerChoices, 1);
+
+    let indexes = getVisibleColIdxs(c);
+    locked = checkLock(indexes, arrLayers);
+    
+    if (locked) {
+        return false;
+    }
+
+    slideCol(c, delta, arrLayers);
+    return true;
 }
 
 function slideColRandom(){
@@ -261,6 +300,7 @@ function slideRowRandom(){
         r = _.random(0, 1);
         do {        
             delta = _.random(1, cols);
+            
         } while (delta == 0);
         // peut être negatif????
         arrLayers = _.sample([[0], [1]]);
@@ -413,75 +453,3 @@ function slideCol(c, displacement, arrLayers){
     }
 });
 } 
-
-    // visible modules
-    //mods.forEach((m) => m.style.fill="blue" );
-    
-    // Create random animation
-    // Create lock idx grid
-
-    // Make only one animation at a time
-
-    // When an animation in choosen it should add the good bricks
-    // When an animation is finished it should update the positions of the data
-    // model
-
-    // todo - get rows
-    // Choose modules to animate
-    // Choose modules to animate - col or row or row part
-    // Choose direction to animate in
-    // Place modules in the right positions
-    // Clean up extra things
-
-    // Choose a random animation and animate it in place
-    // Full group animations
-    // One module top / bottom animations
-    // Changing color animations
-
-
-// Animate row of modules out
-// Animate one row of modules out and other in
-
-
-/*
-function slideRow(r, displacement, arrLayers, finishedCallback) {
-   // console.log("row " + r + " displacement " + displacement + " " + arrLayers );
-    let moduleIdxs = getVisibleRowIdxs(r);
-    // console.log(moduleIdxs);
-    updateLocks(moduleIdxs, arrLayers, true);
-    let movingModules = getModulesFromIndexes(moduleIdxs, arrLayers);
-
-    TweenMax.to(movingModules, 1,
-    {   
-        ease: Cubic.easeInOut, 
-        left: "+=" + displacement * cw,
-        onCompleteParams: [displacement, moduleIdxs, arrLayers], 
-        onComplete: function(displacement, idxs, layers) {   
-            let newIdxs = _.map(idxs, (idx) => {
-                var row = Math.floor( idx / allCols );
-                var newCol = (idx % allCols + displacement) % allCols;
-                return row * allCols + newCol; 
-            });
-            
-            // Do this for each layer
-            layers.forEach(function(layerIdx) {
-                // Get modules in the right order
-                let moduleElems = _.map(idxs, (idx) => groups[layerIdx][idx] );
-                _.each(newIdxs, (newIdx, i) => {
-                    let m = moduleElems[i];
-                    groups[layerIdx][newIdx] = m; 
-                    // add to good pos
-                    layoutModule(m, newIdx, layerIdx);
-                });
-            }, this);
-
-            // Unlock
-            updateLocks(moduleIdxs, arrLayers, false);
-            if (finishedCallback != null){
-                finishedCallback();
-            }
-        }            
-    } );
-}
-
-*/

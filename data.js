@@ -1,3 +1,16 @@
+
+// Interaction params
+
+const changeColorClickCount = 10;
+const idleTimeBeforeInteraction = 1000000; // milis
+const maxTimerInteraction = 15000; // 20 secs
+const probabilityRowAnimation = 0.05;
+const maxOneClickSlides = 10;
+
+const findSlideCountMax = 5;
+
+
+
 let cols = 13;
 let rows = 2;
 let screenW = 960; 
