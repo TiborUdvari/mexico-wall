@@ -1,0 +1,62 @@
+body {
+    background-color: black;
+    margin: 0;
+    padding: 0;
+   clip-path: inset(0px 0px 0px 0px);
+    width: 960px;
+    height: 144px;
+    overflow: hidden;
+}
+
+.leftDeadPixels {
+    left: 0px;
+}
+
+.rightDeadPixels {
+    left: 948px;
+}
+
+.deadPixels {
+    background-color: black;
+    width: 12px;
+    height: 144px;
+    position: absolute;
+    z-index: 999999999999;    
+}
+
+.module {
+    width: 73px;
+    height: 72px;
+    position: absolute;
+}
+
+.blue {
+    fill: #3540fa;
+}
+
+.green {
+    fill: #2bfc98;
+}
+
+.red {
+    fill: #fc0f40;
+}
+
+.bottomLayer {
+    z-index: 0;
+}
+
+.topLayer {
+    z-index: 1;
+}
+
+#screen {
+    z-index: -100;
+    background-color: white;
+    position:absolute;
+    left: 0;
+    top: 0;
+    width: 960px;
+    height: 144px;
+}
+
