@@ -7,10 +7,9 @@ done
 * fix to work with negative displacement
 * publish on github
 * interaction system
+* fix color choosing
 
 todo
 ===
-
 * generate fresh combinations
-* add vars for things
-* Make time of animation be constant
+* Make time of animation be varables

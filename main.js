@@ -32,36 +32,6 @@ function generateRandomCombination(){
     return [combo[0].cloneNode(true), combo[1].cloneNode(true)];
 }
 
-class Group {
-
-    constructor(col, row, topCol, botCol, topIdx, bottomIdx) {
-        this.modules = [];        
-        this.modules[0] = modules[bottomIdx].cloneNode(true);
-        this.modules[1] = modules[topIdx].cloneNode(true);
-        this.col = col;
-        this.row = row;
-        this.topColor = topCol;
-        this.bottomColor = botCol;
-    }
-
-    set bottomColor(newColor){ 
-        this.modules[0].style.fill = newColor;    
-    }
-
-    set topColor(newColor){
-        this.modules[1].style.fill = newColor;
-    }
-
-    set col(newCol){
-       // console.log("set col");
-        this.modules.forEach((m) => m.style.left = leftOffset + (newCol * cw) + "px" ); 
-    }
-
-    set row(newRow){
-        this.modules.forEach((m) => m.style.top = (newRow * ch) + "px" );
-    } 
-}
-
 function setupCompartments(){
     for (var i = 0; i < cols * rows; i++) {
         comparments.push([]);
@@ -69,7 +39,6 @@ function setupCompartments(){
 }
 
 function loaded(){
-    console.log("Loaded elements");
     setup();
     layout();
 }
@@ -94,9 +63,6 @@ function layoutModule(m, i, layerIdx){
     r -= yOff;
     m.style.left = leftOffset + cw * c + "px";
     m.style.top = ch * r + "px";
-
-    // todo
-    //applyLayerSettings(m, i);
 } 
 
 // Should create them in memory with the css classes?
@@ -110,11 +76,8 @@ function layout() {
             var r = (i - c) / allCols;
             c -= xOff;
             r -= yOff;
-            console.log(r);
             // Just create the modules directly
             // modules[bottomIdx].cloneNode(true);
-            // this.modules[1] = modules[topIdx].cloneNode(true);
-            // colors
     
             let mods = generateRandomCombination();
             mods.forEach((m, idx) => {
@@ -190,6 +153,7 @@ function randomInteract(pct){
 } 
 
 function handleClick() {
+
     clickCount++;
 
     let clickDelta = Date.now() - lastClickTime ;
@@ -198,7 +162,6 @@ function handleClick() {
 
     if (clickCount >= changeColorClickCount) {
         let newColor = getNewColor();
-        
         slideInNewColor(newColor);
         clickCount = 0;
     } else {
@@ -213,6 +176,7 @@ function handleClick() {
 function interactWhenNotTouching(){
     if (Date.now() > lastClickTime + idleTimeBeforeInteraction){
         // todo random animation thing
+        randomInteract(0.2);
     }
 }
 
@@ -427,7 +391,11 @@ function slideCol(c, displacement, arrLayers){
    // let moduleLayer = 1;
     let movingModules = getVisibleColModules(c, arrLayers);
 
-   TweenMax.to( movingModules, 1, 
+    // Change the arrays
+    // module
+
+
+   TweenMax.to( movingModules, colTweenTime, 
     { ease: Cubic.easeInOut, 
         top: "+=" + displacement * ch, 
         onCompleteParams: [displacement, moduleIdxs, arrLayers], 
@@ -449,7 +417,6 @@ function slideCol(c, displacement, arrLayers){
 
             // Unlock
             updateLocks(moduleIdxs, arrLayers, false);
-            
     }
 });
 } 
