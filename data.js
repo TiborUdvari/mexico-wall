@@ -7,8 +7,8 @@ const probabilityRowAnimation = 0.05;
 const maxOneClickSlides = 10;
 
 // Animation params
-const rowTweenTime = 1;
-const colTweenTime = 1;
+const rowTweenTime = 3;
+const colTweenTime = 2;
 
 const findSlideCountMax = 5;
 
